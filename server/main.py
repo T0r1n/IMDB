@@ -8,7 +8,7 @@ app = Flask(__name__)
 cors = CORS(app,origins='*')
 
 kaggle.api.authenticate()
-#kaggle.api.dataset_download_files('octopusteam/full-imdb-dataset', path=".",unzip=True)
+kaggle.api.dataset_download_files('octopusteam/full-imdb-dataset', path=".",unzip=True)
 file_path = 'data.csv'
 
 @app.route('/', methods=['GET'])
