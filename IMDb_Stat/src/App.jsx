@@ -10,6 +10,7 @@ function App() {
   const [count, setCount] = useState(0)
   const [array, setArray] = useState([]);
 
+
   return (
     <Router>
       <nav className="navbar">
