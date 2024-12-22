@@ -3,32 +3,112 @@ import os
 import threading
 import time
 import kaggle 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import pandas as pd
 import schedule
 
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_absolute_error
+import joblib
+
 app = Flask(__name__)
 cors = CORS(app,origins='*')
 
-kaggle.api.authenticate()
-kaggle.api.dataset_download_files('octopusteam/full-imdb-dataset', path=".",unzip=True)
+# kaggle.api.authenticate()
+# kaggle.api.dataset_download_files('octopusteam/full-imdb-dataset', path=".",unzip=True)
 file_path = 'data.csv'
 
-def run_schedule():
-    print("Запуск планировщика задач...")
-    while True:
-        schedule.run_pending()
-        time.sleep(10)
+# def run_schedule():
+#     print("Запуск планировщика задач...")
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(10)
 
-def job():
-    global file_path
-    # print("Код выполняется раз в день")
-    kaggle.api.authenticate()
-    kaggle.api.dataset_download_files('octopusteam/full-imdb-dataset', path=".",unzip=True)
-    file_path = 'data.csv'
+# def job():
+#     global file_path
+#     kaggle.api.authenticate()
+#     kaggle.api.dataset_download_files('octopusteam/full-imdb-dataset', path=".",unzip=True)
+#     file_path = 'data.csv'
 
-schedule.every().minute.at(":01").do(job)  
+# schedule.every().minute.at(":01").do(job)  
+
+
+model_file = 'movie_rating_model.pkl'
+
+def train_model():
+    # Загрузка данных
+    data = pd.read_csv('data.csv')
+
+    X = data[['releaseYear', 'genres', 'numVotes']]
+    y = data['averageRating']
+
+    print("Форма X:", X.shape)  
+    print("Форма y:", y.shape) 
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('genre', OneHotEncoder(), 'genres')
+        ],
+        remainder='passthrough'  
+    )
+    model = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', RandomForestRegressor())
+    ])
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model.fit(X_train, y_train)
+    joblib.dump(model, model_file)
+
+def predict_movie_rating(year, genre, voteRange):
+    min_votes, max_votes = map(int, voteRange.split('-'))
+    data = pd.read_csv('data.csv')
+
+    # Фильтрация данных по году
+    filtered_data = data[data['releaseYear'] == int(year)]
+
+    # Фильтрация данных по жанру
+    filtered_data = filtered_data[filtered_data['genres'].str.contains(genre, case=False, na=False)]
+
+    # Фильтрация данных по количеству оценок
+    filtered_data = filtered_data[(filtered_data['numVotes'] >= min_votes) & (filtered_data['numVotes'] <= max_votes)]
+
+    if not filtered_data.empty:
+        # Рассчет средней оценки для отфильтрованных данных
+        average_rating = filtered_data['averageRating'].mean()
+        
+        # Рассчет погрешности
+        rating_std = filtered_data['averageRating'].std()  # Стандартное отклонение
+        predictions = filtered_data['averageRating'].values  # Получаем реальные оценки
+        mae = mean_absolute_error(predictions, [average_rating] * len(predictions))  # Абсолютная погрешность
+
+        return {
+            'averageRating': round(average_rating, 2),
+            'errorMargin': round(rating_std, 2),
+            'mae': round(mae, 2)
+        }
+
+    historical_data = data[data['releaseYear'] < int(year)]
+    historical_data = historical_data[historical_data['genres'].str.contains(genre, case=False, na=False)]
+    historical_data = historical_data[(historical_data['numVotes'] >= min_votes) & (historical_data['numVotes'] <= max_votes)]
+
+    if not historical_data.empty:
+        average_rating = historical_data['averageRating'].mean()
+        rating_std = historical_data['averageRating'].std()  # Стандартное отклонение
+        predictions = historical_data['averageRating'].values  # Получаем реальные оценки
+        mae = mean_absolute_error(predictions, [average_rating] * len(predictions))  # Абсолютная погрешность
+
+        return {
+            'averageRating': round(average_rating, 2),
+            'errorMargin': round(rating_std, 2),
+            'mae': round(mae, 2)
+        }
+    return None
+# 
 
 @app.route('/', methods=['GET'])
 def index():
@@ -249,6 +329,51 @@ def data_missing():
     
     return jsonify(result)
 
+
+@app.route('/predict_rating', methods=['POST'])
+def predict_rating():
+    data = request.get_json()
+    year = data['year']
+    genre = data['genre']
+    voteRange = data['voteRange']
+
+    result = predict_movie_rating(year, genre, voteRange)
+
+    if result is None:
+        return jsonify({'error': 'Нет данных для прогнозирования'}), 404
+
+    return jsonify(result)
+
+@app.route('/get_movies_by_local_genres', methods=['POST'])
+def get_movies_by_local_genres():
+    data = pd.read_csv(file_path)
+    genres = request.json.get('genres', [])
+
+    if not genres:
+        return jsonify({'error': 'No genres provided'}), 400
+
+    filtered_data = data.dropna(subset=['genres', 'averageRating', 'numVotes'])
+    filtered_data = filtered_data[filtered_data['numVotes'] > 500]
+
+    genres_expanded = filtered_data.assign(genres=filtered_data['genres'].str.split(',')).explode('genres')
+    genres_expanded['genres'] = genres_expanded['genres'].str.strip()
+
+    filtered_by_genres = genres_expanded[genres_expanded['genres'].isin(genres)]
+
+    if filtered_by_genres.empty:
+        return jsonify({'error': 'No movies found for the given genres'}), 404
+
+    random_movies = filtered_by_genres.sample(n=20, random_state=1)  
+
+
+    movies = random_movies[['id', 'title', 'averageRating', 'numVotes', 'genres']].to_dict(orient='records')
+    
+
+    for movie in movies:
+        movie['genres'] = movie['genres'].split(', ')  
+
+    return jsonify(movies)
+
 if __name__ == '__main__':
-    threading.Thread(target=run_schedule).start()
-    app.run(debug=False)
+    # threading.Thread(target=run_schedule).start()
+    app.run(debug=True)

@@ -35,8 +35,8 @@
 
 .row {
   display: flex;
-  flex-wrap: wrap; /* Позволяет элементам переноситься на следующую строку */
-  justify-content: space-between; /* Распределяет карточки по ширине */
+  flex-wrap: wrap; 
+  justify-content: space-between; 
 }
 
 .container {
@@ -48,19 +48,19 @@
 .cards {
   margin-bottom: 20px; 
   padding: 10px; 
-  border: 1px solid #ccc; /* Обводка */
-  border-radius: 5px; /* Закругленные углы */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень */
-  width: 250px; /* Фиксированная ширина */
-  height: 100px; /* Фиксированная высота */
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 250px; 
+  height: 100px; 
   display: flex;
-  flex-direction: column; /* Устанавливает направление по вертикали */
-  justify-content: space-between; /* Распределяет содержимое по высоте */
+  flex-direction: column; 
+  justify-content: space-between; 
 }
 
 .cards:hover {
-  animation: glow 1.5s infinite alternate; /* Применяем анимацию при наведении */
-  border-color: rgba(0, 123, 255, 0.8); /* Изменение цвета границы при наведении */
+  animation: glow 1.5s infinite alternate; 
+  border-color: rgba(0, 123, 255, 0.8); 
 }
 
 @keyframes glow {
@@ -84,24 +84,24 @@
 
 
 .card-footer {
-  display: flex; /* Используем Flexbox для расположения элементов */
-  justify-content: space-between; /* Распределяем элементы по ширине */
-  align-items: center; /* Выравниваем элементы по центру */
-  margin-top: auto; /* Отодвигаем футер вниз */
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-top: auto; 
 }
 
 .card-title {
-  font-size: 1.2rem; /* Размер шрифта для названия */
-  line-height: 1.2; /* Высота строки */
-  margin: 0; /* Убираем отступы */
+  font-size: 1.2rem; 
+  line-height: 1.2;
+  margin: 0; 
 }
 
 .card-block {
-  padding: 2px 0; /* Уменьшите отступы внутри блока */
+  padding: 2px 0; 
 }
 
 .card-text {
-  margin: 2px 0; /* Уменьшите отступы между текстом и количеством голосов */
+  margin: 2px 0; 
 }
 
 .cart-price {
@@ -110,54 +110,61 @@
 }
 
 .btn {
-  padding: 5px 10px; /* Уменьшите отступы по вертикали и горизонтали */
-  margin: 0; /* Убедитесь, что поля установлены в 0, если это необходимо */
+  padding: 5px 10px; 
+  margin: 0; 
   font-size: 14px;
-  background-color: #007bff; /* Цвет фона */
-  color: white; /* Цвет текста */
-  border: 1px solid #007bff; /* Цвет границы */
+  background-color: #007bff; 
+  color: white; 
+  border: 1px solid #007bff;
 }
 
 .btn:hover {
-  background-color: #00b309; /* Цвет фона при наведении */
-  border-color: #00b309; /* Цвет границы при наведении */
+  background-color: #00b309; 
+  border-color: #00b309; 
 }
 
 
 .navbar {
   display: flex;
-  justify-content: center; /* Центрирует навигацию по горизонтали */
-  background-color: #333; /* Цвет фона панели навигации */
-  padding: 10px 0; /* Отступы сверху и снизу */
-  position: fixed; /* Фиксирует панель в верхней части страницы */
-  top: 0; /* Устанавливает панель в верхней части */
-  left: 0; /* Устанавливает панель к левому краю */
-  right: 0; /* Устанавливает панель к правому краю */
-  z-index: 1000; /* Устанавливает уровень наложения, чтобы панель была поверх других элементов */
+  justify-content: center; 
+  background-color: #333; 
+  padding: 10px 0; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  z-index: 1000; 
 }
 
 .nav-links {
-  list-style-type: none; /* Убирает маркеры списка */
-  padding: 0; /* Убирает отступы */
-  margin: 0; /* Убирает отступы */
-  display: flex; /* Делает список горизонтальным */
+  list-style-type: none; 
+  padding: 0; 
+  margin: 0; 
+  display: flex; 
 }
 
 .nav-links li {
-  margin: 0 15px; /* Отступы между элементами списка */
+  margin: 0 15px;
 }
 
 .nav-links a {
-  color: white; /* Цвет текста ссылок */
-  text-decoration: none; /* Убирает подчеркивание */
-  font-size: 16px; /* Размер шрифта */
+  color: white; 
+  text-decoration: none; 
+  font-size: 16px; 
 }
 
 .nav-links a:hover {
-  text-decoration: underline; /* Подчеркивание при наведении */
+  text-decoration: underline; 
 }
 
-/* Добавьте отступ сверху для контента, чтобы он не перекрывался навигацией */
+
 main {
-  margin-top: 60px; /* Убедитесь, что это значение больше, чем высота навигационной панели */
+  margin-top: 60px; 
+}
+
+.form select,
+.form input,
+.form button {
+  margin-bottom: 15px;
+  padding: 10px;
 }

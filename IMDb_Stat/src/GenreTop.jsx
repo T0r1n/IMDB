@@ -22,13 +22,22 @@ const GenresTopPage = () => {
 
   useEffect(() => {
     top_rated_by_genre();
-    //setArray(response.data);
   },[]);
 
-  const openIMDb = (movieId) => {
-    const url = `https://www.imdb.com/title/${movieId}/`; 
-    window.open(url, "_blank"); 
-  };
+  const openIMDb = (movieId, genres) => {
+  const existingGenres = JSON.parse(localStorage.getItem('userGenres')) || [];
+
+  const updatedGenres = Array.from(new Set([...existingGenres, ...genres]));
+
+  if (updatedGenres.length > 5) {
+    updatedGenres.shift(); 
+  }
+
+  localStorage.setItem('userGenres', JSON.stringify(updatedGenres));
+
+  const url = `https://www.imdb.com/title/${movieId}/`; 
+  window.open(url, "_blank"); 
+};
 
   return (
     <div>
@@ -53,7 +62,7 @@ const GenresTopPage = () => {
                       </div>
                       <div className="card-footer">
                         <p className="cart-price">{item.averageRating}</p>
-                        <button className="btn btn-primary add-to-cart" onClick={() => openIMDb(item.id)}>
+                        <button className="btn btn-primary add-to-cart" onClick={() => openIMDb(item.id, item.genres)}>
                           <span className="fa fa-eye"></span>
                         </button>
                       </div>
