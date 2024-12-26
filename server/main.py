@@ -13,7 +13,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, confusion_matrix, ConfusionMatrixDisplay
 import joblib
 
 app = Flask(__name__)
@@ -112,6 +112,7 @@ def predict_movie_rating(year, genre, voteRange):
             'mae': round(mae, 2)
         }
     return None
+
 
 
 @app.route('/', methods=['GET'])
@@ -257,15 +258,15 @@ def votes_rating_correlation():
 
     data = data.dropna(subset=['averageRating', 'numVotes'])
 
-    data = data.tail(1000)
+    limited_data = data.sample(n=500, random_state=1)
 
-    correlation_data = data[['numVotes', 'averageRating']]
+    correlation_data = limited_data[['numVotes', 'averageRating']]
 
     correlation_coefficient = correlation_data['numVotes'].corr(correlation_data['averageRating'])
 
     result = {
         'correlation_coefficient': correlation_coefficient,
-        'dats': correlation_data.to_dict(orient='records')
+        'data': correlation_data.to_dict(orient='records')
     }
 
     return jsonify(result)

@@ -14,6 +14,7 @@ import {
   ResponsiveContainer,
   Scatter
 } from 'recharts';
+import regression from 'regression';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length > 0) {
@@ -43,7 +44,19 @@ const CustomChart = ({ data, dataKey, xAxisKey, title, chartType, customFrontSiz
     return <p>No data available</p>;
   }
 
+  const sortedData = data.sort((a, b) => a.numVotes - b.numVotes);
+
+const regressionData = data.map(item => [item.numVotes, item.averageRating]);
+const result = regression.linear(regressionData);
+const lineData = result.points.map(point => ({
+  numVotes: point[0],
+  averageRating: point[1]
+}));
+
+  console.log("Line Data:", lineData);
   console.log(data)
+
+  
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -85,14 +98,15 @@ const CustomChart = ({ data, dataKey, xAxisKey, title, chartType, customFrontSiz
           <Tooltip content={<CustomTooltip />} />
         </PieChart>
         )}
-        {chartType === 'scatter' && ( 
-           <ScatterChart width={600} height={400}>
-           <CartesianGrid />
-           <XAxis dataKey="numVotes" domain={[0, 'dataMax']} />
-           <YAxis domain={[0, 10]} />
-           <Tooltip />
-           <Scatter data={data} fill="#8384d0" />
-         </ScatterChart>
+          {chartType === 'scatter' && ( 
+          <ScatterChart>
+            <CartesianGrid />
+            <XAxis dataKey="numVotes" name="Number of Votes" />
+            <YAxis dataKey="averageRating" name="Average Rating" domain={[0, 10]} />
+            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+            <Scatter name="Correlation" data={sortedData} fill="#8884d8" />
+            <Line type="monotone" data={lineData} dataKey="averageRating" stroke="#ff7300" strokeWidth={5} />
+          </ScatterChart>
         )}
       </ResponsiveContainer>
       

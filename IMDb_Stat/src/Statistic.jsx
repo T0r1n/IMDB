@@ -11,6 +11,7 @@ const Statistic = () => {
   const [movieYearData, setmovieYearData] = useState([]);
   const [missingData, setmissingData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [correlationData, setCorrelationData] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -35,6 +36,9 @@ const Statistic = () => {
 
       const MissingResponse = await axios.get("http://127.0.0.1:5000/data_missing"); // Получаем данные о пропусках
       setmissingData(MissingResponse.data.data);
+
+      const correlationResponse = await axios.get("http://127.0.0.1:5000/votes_rating_correlation"); // Получаем данные о корреляции
+    setCorrelationData(correlationResponse.data.data);
       
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -97,17 +101,6 @@ const Statistic = () => {
       ) : (
         <p>No data available for the rating distribution chart</p>
       )}
-      {/* {correlationData && correlationData.dats && correlationData.dats.length != 0 ? (
-        <CustomChart 
-          data={correlationData.dats} 
-          dataKey="averageRating" 
-          xAxisKey="numVotes" 
-          title={`Корреляция между количеством голосов и рейтингом (Коэффициент: ${correlationData.correlation_coefficient.toFixed(3)})`} 
-          chartType="scatter" 
-        />
-      ) : (
-        <p>No data available for the correlation chart</p>
-      )} */}
       {RatingData && RatingData.length > 0 ? (
         <CustomChart 
           data={RatingData} 
@@ -142,6 +135,17 @@ const Statistic = () => {
       ) : (
         <p>No data available for the pie chart</p>
       )}
+        {correlationData && correlationData.length > 0 ? (
+    <CustomChart 
+      data={correlationData} 
+      dataKey="averageRating"
+      xAxisKey="numVotes"
+      title="Корреляция между количеством голосов и средним рейтингом" 
+      chartType="scatter" 
+    />
+  ) : (
+    <p>No data available for the correlation scatter chart</p>
+  )}
     </div>
   );
 };
