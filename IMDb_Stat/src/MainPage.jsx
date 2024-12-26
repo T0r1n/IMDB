@@ -13,7 +13,7 @@ const MainPage = () => {
   const [recommendedMovies, setRecommendedMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const genres = ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi', 'Thriller', 'Adult'];
+  const genres = ['Action','Adventure','Animation','Biography', 'Comedy','Crime','Documentary', 'Drama','Family','Fantasy','Film-Noir','Game-Show','History', 'Horror','Music','Musical', 'Romance','Mystery','News','Reality-TV', 'Sci-Fi','Romance','Short','Sport','Talk-Show', 'Thriller','War','Western', 'Adult'];
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 106 }, (v, i) => currentYear - 100 + i).reverse();
   
@@ -78,7 +78,7 @@ const MainPage = () => {
         display: 'flex', 
         flexDirection: 'column', 
         width: '300px', 
-        margin: '0 auto' // Центрирование формы
+        margin: '0 auto'
       }}>
         <select value={year} onChange={(e) => setYear(e.target.value)} required>
           <option value="">Выберите год</option>
